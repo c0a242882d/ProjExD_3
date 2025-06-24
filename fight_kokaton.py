@@ -189,8 +189,8 @@ def main():
     bird = Bird((300, 200))
     bomb = Bomb((255, 0, 0), 10)
     score = Score()
-    bombs=[] #  爆弾用の空のリスト
-    beams=[] #  ビーム用のリスト
+    bombs=[]  #  爆弾用の空のリスト
+    beams=[]  #  ビーム用のリスト
     explosions = []  # Explosionインスタンス用の空のリスト
     for _ in range(NUM_OF_BOMBS):
         bombs.append(Bomb((255,0,0),10))
@@ -210,7 +210,7 @@ def main():
         for n2,bomb2 in enumerate(bombs):
             for n,beam2 in enumerate(beams):
                 if bomb2.rct.colliderect(beam2.rct):
-                    explosions.append(Explosion(bomb.rct.center))  #爆発追加
+                    explosions.append(Explosion(bomb.rct.center))  #  爆発追加
                     bombs[n2]=None
                     beams[n]=None
                     bird.change_img(6, screen)
@@ -245,7 +245,7 @@ def main():
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         for i,beam in enumerate(beams):
-            if check_bound(beam.rct)==(False,False): #  ビームが存在する時
+            if check_bound(beam.rct)==(False,False):  #  ビームが存在する時
                 del beams[i]
             else:    
                 beam.update(screen)   
