@@ -210,7 +210,7 @@ def main():
         for n2,bomb2 in enumerate(bombs):
             for n,beam2 in enumerate(beams):
                 if bomb2.rct.colliderect(beam2.rct):
-                    explosions.append(Explosion(bomb.rct.center))  #爆発追加
+                    explosions.append(Explosion(bomb2.rct.center))  #爆発追加
                     bombs[n2]=None
                     beams[n]=None
                     bird.change_img(6, screen)
@@ -234,14 +234,13 @@ def main():
                 txt = fonto.render("Game Over", True, (255, 0, 0))
                 screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
 
-                score.update(screen)  # スコアの描画
                 
                 pg.display.update()
                 time.sleep(1)
                 return
        
 
-
+        score.update(screen)  # スコアの描画
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
         for i,beam in enumerate(beams):
