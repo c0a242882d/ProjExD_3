@@ -7,7 +7,7 @@ import pygame as pg
 
 WIDTH = 1100  # ゲームウィンドウの幅
 HEIGHT = 650  # ゲームウィンドウの高さ
-NUM_OF_BOMBS = 5  # 爆弾の数
+NUM_OF_BOMBS=5
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -83,8 +83,7 @@ class Bird:
         if not (sum_mv[0] == 0 and sum_mv[1] == 0):
             self.img = __class__.imgs[tuple(sum_mv)]
         screen.blit(self.img, self.rct)
-
-
+ 
 class Beam:
     """
     こうかとんが放つビームに関するクラス
@@ -94,10 +93,10 @@ class Beam:
         ビーム画像Surfaceを生成する
         引数 bird：ビームを放つこうかとん（Birdインスタンス）
         """
-        self.img = pg.image.load("fig/beam.png")
+        self.img = pg.image.load(f"fig/beam.png")
         self.rct = self.img.get_rect()
         self.rct.centery = bird.rct.centery
-        self.rct.left = bird.rct.right  # ビームの左座標＝こうかとんの右座標
+        self.rct.left = bird.rct.right #ビームの左座標＝こうかとんの右座標
         self.vx, self.vy = +5, 0
 
     def update(self, screen: pg.Surface):
@@ -108,6 +107,7 @@ class Beam:
         if check_bound(self.rct) == (True, True):
             self.rct.move_ip(self.vx, self.vy)
             screen.blit(self.img, self.rct)    
+
 
 
 class Bomb:
@@ -160,10 +160,11 @@ def main():
     bird = Bird((300, 200))
     bomb = Bomb((255, 0, 0), 10)
     score = Score()
-    bombs = []  # 爆弾用の空のリスト
+    bombs=[] #  爆弾用の空のリスト
+    beams=[] #  ビーム用のリスト
     for _ in range(NUM_OF_BOMBS):
-        bombs.append(Bomb((255, 0, 0), 10))
-    bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
+        bombs.append(Bomb((255,0,0),10))
+    #  内包表記    
     beam = None  # ゲーム初期化時にはビームは存在しない
     clock = pg.time.Clock()
     tmr = 0
@@ -173,39 +174,43 @@ def main():
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 # スペースキー押下でBeamクラスのインスタンス生成
-                beam = Beam(bird)            
+                beams.append(Beam(bird))                
         screen.blit(bg_img, [0, 0])
-        
+
+        for n2,bomb2 in enumerate(bombs):
+            for n,beam2 in enumerate(beams):
+                if bomb2.rct.colliderect(beam2.rct):
+                    bombs[n2]=None
+                    beams[n]=None
+                    bird.change_img(6, screen)
+                    pg.display.update()
+                    score.value += 1  # スコアを1点加算
+            beams = [beam for beam in beams if beam is not None]        
+        bombs=[bomb for bomb in bombs if bomb is not None]        
+            
         for bomb in bombs:
             if bird.rct.colliderect(bomb.rct):
                 # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
-                fonto = pg.font.Font(None, 80) 
-                txt = fonto.render("Game Over", True, (255, 0, 0)) 
-                screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
                 bird.change_img(8, screen)
-                fonto = pg.font.Font(None, 80) 
-                txt = fonto.render("Game Over", True, (255, 0, 0)) 
+                fonto = pg.font.Font(None, 80)
+                txt = fonto.render("Game Over", True, (255, 0, 0))
                 screen.blit(txt, [WIDTH//2-150, HEIGHT//2])
                 pg.display.update()
                 time.sleep(1)
                 return
-        
-        for i, bomb in enumerate(bombs):
-            if beam is not None:
-                if beam.rct.colliderect(bomb.rct):  # ビームと爆弾が衝突していたら
-                    beam = None
-                    bombs[i] = None
-                    bird.change_img(6, screen)
-                    score.value += 1  # スコアを1点加算
-        bombs = [bomb for bomb in bombs if bomb is not None]
+       
+
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
-        if beam is not None:  # ビームが存在するときだけ
-           beam.update(screen) 
-        for bomb in bombs:
-           bomb.update(screen)
-           
+        for i,beam in enumerate(beams):
+            if check_bound(beam.rct)==(False,False): #  ビームが存在する時
+                del beams[i]
+            else:    
+                beam.update(screen)   
+        for bomb in bombs:    
+            bomb.update(screen)
+        
         score.update(screen)  # スコアの描画
 
         pg.display.update()
